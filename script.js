@@ -1,22 +1,54 @@
 // カート管理
 let cart = [];
 
-// 在庫管理（実際にはGoogleスプレッドシートから取得）
-const inventory = {
-    // 'アカシア蜂蜜': 5,
-    // '百花蜜': 8,
-    // 'ギフトセット': 3
-};
+// Googleスプレッドシートから在庫情報を取得する関数
+async function fetchInventoryFromGoogleSheets() {
+    try {
+        // ここに先ほどコピーしたウェブアプリのURLを貼り付け
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx29hGNaB45ejDkSoFeNm3vVLX00MWaTTf8Ii4hoYYq61rdUN11z1SDijAqSv3eY6SLyQ/exec';
 
-// ページ読み込み時に在庫状況を更新
+        const response = await fetch(GOOGLE_SHEETS_URL);
+
+        if (!response.ok) {
+            throw new Error('在庫データの取得に失敗しました');
+        }
+
+        const data = await response.json();
+
+        // 在庫データを更新
+        Object.keys(data).forEach(productName => {
+            inventory[productName] = data[productName].stock;
+        });
+
+        updateStockDisplay();
+        console.log('在庫情報を更新しました:', inventory);
+
+    } catch (error) {
+        console.error('在庫情報の取得に失敗しました:', error);
+
+        // エラー時のフォールバック（デフォルト在庫）
+        Object.assign(inventory, {
+            '百花蜜（300g）': 5,
+            '百花蜜（500g）': 8,
+            'ギフトセット': 3
+        });
+        updateStockDisplay();
+    }
+}
+
+// ページ読み込み時に在庫を取得
 document.addEventListener('DOMContentLoaded', function () {
+    fetchInventoryFromGoogleSheets(); // 初回取得
     updateStockDisplay();
     initializeEventListeners();
 });
 
+// 定期的に在庫情報を更新（5分ごと）
+setInterval(fetchInventoryFromGoogleSheets, 5 * 60 * 1000);
+
 // 在庫表示を更新
 function updateStockDisplay() {
-    const products = ['アカシア蜂蜜', '百花蜜', 'ギフトセット'];
+    const products = ['百花蜜（300g）', '百花蜜（500g）', 'ギフトセット'];
     const stockIds = ['stock-acacia', 'stock-wildflower', 'stock-gift'];
     const buttonIds = ['btn-acacia', 'btn-wildflower', 'btn-gift'];
 
@@ -176,8 +208,8 @@ async function fetchInventoryFromGoogleSheets() {
 
         // サンプルデータ
         const sampleData = {
-            'アカシア蜂蜜': Math.floor(Math.random() * 10),
-            '百花蜜': Math.floor(Math.random() * 10),
+            '百花蜜（300g）': Math.floor(Math.random() * 10),
+            '百花蜜（500g）': Math.floor(Math.random() * 10),
             'ギフトセット': Math.floor(Math.random() * 5)
         };
 
