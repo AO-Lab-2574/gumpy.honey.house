@@ -11,6 +11,7 @@ let inventory = {
 // スライドショー機能
 function initSlideshow() {
     const images = document.querySelectorAll('.slideshow-image');
+    const images2 = document.querySelectorAll('.slideshow-image2');
     if (images.length === 0) return; // 画像がない場合は実行しない
 
     let currentIndex = 0;
@@ -19,6 +20,16 @@ function initSlideshow() {
         images[currentIndex].classList.remove('active');
         currentIndex = (currentIndex + 1) % images.length;
         images[currentIndex].classList.add('active');
+    }, 3000); // 3秒ごとに切り替え
+
+    if (images2.length === 0) return; // 画像がない場合は実行しない
+
+    let currentIndex2 = 0;
+
+    setInterval(() => {
+        images2[currentIndex2].classList.remove('active');
+        currentIndex = (currentIndex2 + 1) % images2.length;
+        images2[currentIndex2].classList.add('active');
     }, 3000); // 3秒ごとに切り替え
 }
 

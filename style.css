@@ -455,7 +455,7 @@ body {
     transition: opacity 1s ease-in-out;
 }
 
-.slideshow-image.active2 {
+.slideshow-image2.active {
     opacity: 1;
 }
 
