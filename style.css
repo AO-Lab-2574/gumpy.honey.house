@@ -444,7 +444,7 @@ body {
     overflow: hidden;
 }
 
-.slideshow-image2 {
+.story-image2 .slideshow-image2 {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -455,7 +455,7 @@ body {
     transition: opacity 1s ease-in-out;
 }
 
-.slideshow-image2.active {
+.story-image2 .slideshow-image2.active {
     opacity: 1;
 }
 
