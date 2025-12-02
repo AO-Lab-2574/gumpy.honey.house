@@ -26,7 +26,7 @@ function initSlideshow() {
 
     let currentIndex2 = 0;
 
-    setInterval2(() => {
+    setInterval(() => {
         images2[currentIndex2].classList.remove('active');
         currentIndex2 = (currentIndex2 + 1) % images2.length;
         images2[currentIndex2].classList.add('active');
