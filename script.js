@@ -28,7 +28,7 @@ function initSlideshow() {
 
     setInterval(() => {
         images2[currentIndex2].classList.remove('active');
-        currentIndex = (currentIndex2 + 1) % images2.length;
+        currentIndex2 = (currentIndex2 + 1) % images2.length;
         images2[currentIndex2].classList.add('active');
     }, 3000); // 3秒ごとに切り替え
 }
