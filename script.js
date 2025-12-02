@@ -1,6 +1,27 @@
 // カート管理
 let cart = [];
 
+// 在庫管理（デフォルト値）
+let inventory = {
+    '百花蜜（300g）': 0,
+    '百花蜜（500g）': 0,
+    // 'ギフトセット': 0
+};
+
+// スライドショー機能
+function initSlideshow() {
+    const images = document.querySelectorAll('.slideshow-image');
+    if (images.length === 0) return; // 画像がない場合は実行しない
+
+    let currentIndex = 0;
+
+    setInterval(() => {
+        images[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % images.length;
+        images[currentIndex].classList.add('active');
+    }, 3000); // 3秒ごとに切り替え
+}
+
 // Googleスプレッドシートから在庫情報を取得する関数
 async function fetchInventoryFromGoogleSheets() {
     try {
@@ -28,16 +49,17 @@ async function fetchInventoryFromGoogleSheets() {
 
         // エラー時のフォールバック（デフォルト在庫）
         Object.assign(inventory, {
-            '百花蜜（300g）': 5,
-            '百花蜜（500g）': 8,
-            'ギフトセット': 3
+            '百花蜜（300g）': 0,
+            '百花蜜（500g）': 0,
+            // 'ギフトセット': 0
         });
         updateStockDisplay();
     }
 }
 
-// ページ読み込み時に在庫を取得
+// ページ読み込み時に実行
 document.addEventListener('DOMContentLoaded', function () {
+    initSlideshow(); // スライドショー開始
     fetchInventoryFromGoogleSheets(); // 初回取得
     updateStockDisplay();
     initializeEventListeners();
