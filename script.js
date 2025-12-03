@@ -34,7 +34,8 @@ function initSlideshow() {
 // Googleスプレッドシートから在庫情報を取得
 async function fetchInventoryFromGoogleSheets() {
     try {
-        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwRbc1QcZw4I7yR6j8OA91FXzi_d_O3XlbrOP8yNsNadjJrSKHF3JSk5UD0tk-j66maDg/exec';
+        // ⚠️ ここに自分のGoogle Apps ScriptのURLを入れる
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw6ixzojTSJECfoOEvbnewj0rnhLF5ZKtj_t_rlbQElBEmJgTlG6CnQQvOqMyknWYls8A/exec';
 
         console.log('在庫情報を取得中...');
         const response = await fetch(GOOGLE_SHEETS_URL);
@@ -135,6 +136,9 @@ function addToCart(name, price) {
     }
 
     console.log(`現在のカート:`, cart);
+
+    // Google Analyticsにイベント送信
+    trackEvent('add_to_cart', 'ecommerce', name);
 
     updateCartDisplay();
     showAddToCartAnimation(event.target);
@@ -297,6 +301,10 @@ function openOrderForm() {
             googleFormButton.onclick = function (e) {
                 e.preventDefault();
                 const url = prepareOrderForGoogleForm();
+
+                // Google Analyticsにイベント送信
+                trackEvent('click', 'order', 'google_form_button');
+
                 console.log('✅ ボタンクリック時のURL:', url);
                 window.open(url, '_blank');
                 return false;
@@ -370,6 +378,19 @@ function initializeEventListeners() {
     });
 }
 
+// Google Analyticsイベントトラッキング
+function trackEvent(action, category, label) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', action, {
+            event_category: category,
+            event_label: label
+        });
+        console.log('📊 イベント送信:', action, category, label);
+    } else {
+        console.log('⚠️ Google Analytics未設定');
+    }
+}
+
 // エラーハンドリング（拡張機能のエラーを無視）
 window.addEventListener('error', function (e) {
     // 拡張機能のエラーを無視
@@ -400,14 +421,4 @@ if ('IntersectionObserver' in window) {
             imageObserver.observe(img);
         });
     });
-}
-
-// Google Analytics tracking（オプション）
-function trackEvent(action, category, label) {
-    if (typeof gtag !== 'undefined') {
-        gtag('event', action, {
-            event_category: category,
-            event_label: label
-        });
-    }
 }
