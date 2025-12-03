@@ -197,22 +197,57 @@ function removeFromCart(name) {
     openOrderForm(); // 表示を更新
 }
 
-// 注文フォームを開く
+// Entry ID（正しいIDです）
+const GOOGLE_FORM_ENTRY_ID = '261192025';
+
+// 注文データをGoogleフォーム用に準備
+function prepareOrderForGoogleForm() {
+    if (cart.length === 0) {
+        return '#';
+    }
+
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shipping = subtotal >= 5000 ? 0 : 600;
+    const finalTotal = subtotal + shipping;
+
+    // 注文内容の文字列を整形
+    const orderSummary = cart.map(item =>
+        `${item.name} × ${item.quantity}個 = ¥${(item.price * item.quantity).toLocaleString()}`
+    ).join('\n');
+
+    const fullOrderSummary =
+        `${orderSummary}\n---\n` +
+        `小計：¥${subtotal.toLocaleString()}\n` +
+        `送料：¥${shipping.toLocaleString()}\n` +
+        `合計：¥${finalTotal.toLocaleString()}`;
+
+    // GoogleフォームのベースURL
+    const formUrlBase = 'https://docs.google.com/forms/d/e/1FAIpQLSeeo3brfYPjNcLU3Sm7WdetZgbTxpT1X6CEXYjCbty5dJxdtw/viewform';
+
+    // プレフィルドURLの作成
+    const prefilledUrl = `${formUrlBase}?entry.${GOOGLE_FORM_ENTRY_ID}=${encodeURIComponent(fullOrderSummary)}`;
+
+    console.log('🔗 生成されたURL:', prefilledUrl);
+
+    return prefilledUrl;
+}
+
+// 注文フォームを開く（最終版）
 function openOrderForm() {
     const modal = document.getElementById('order-modal');
     const orderItems = document.getElementById('order-items');
     const orderTotal = document.getElementById('order-total');
     const googleFormButton = document.querySelector('.google-form-container .form-button');
 
-    // ===================================================
-    // 1. 注文内容の表示と合計金額の計算
-    // ===================================================
+    console.log('📝 openOrderForm が呼ばれました');
+    console.log('🛒 現在のカート:', cart);
+    console.log('🔘 ボタン要素:', googleFormButton);
+
+    // 注文内容の表示と合計金額の計算
     if (cart.length === 0) {
-        // カートが空の場合の表示
         orderItems.innerHTML = '<p class="empty-cart">商品が選択されていません</p>';
         orderTotal.textContent = '合計：¥0';
     } else {
-        // カートがある場合の表示
         orderItems.innerHTML = cart.map(item => `
             <div class="order-item">
                 <div class="item-info">
@@ -240,26 +275,40 @@ function openOrderForm() {
         `;
     }
 
-    // ===================================================
-    // 2. Googleフォームボタンの制御 (追加されたロジック)
-    // ===================================================
+    // Googleフォームボタンの制御（最終版）
     if (googleFormButton) {
         if (cart.length === 0) {
-            // カートが空の場合はリンクを無効化
+            // カートが空の場合
             googleFormButton.href = '#';
             googleFormButton.textContent = '📝 商品を選んでください';
-            googleFormButton.classList.add('disabled-button'); // CSSで見た目を制御するためにクラスを追加
+            googleFormButton.classList.add('disabled-button');
+            googleFormButton.onclick = function (e) {
+                e.preventDefault();
+                alert('先に商品をカートに追加してください');
+                return false;
+            };
+            console.log('⚠️ カートが空です');
         } else {
-            // カートがある場合はプレフィルドURLを生成・設定
-            googleFormButton.href = prepareOrderForGoogleForm();
+            // カートに商品がある場合
             googleFormButton.textContent = '📝 Googleフォームで注文する';
             googleFormButton.classList.remove('disabled-button');
+
+            // クリック時に動的にURLを生成して開く
+            googleFormButton.onclick = function (e) {
+                e.preventDefault();
+                const url = prepareOrderForGoogleForm();
+                console.log('✅ ボタンクリック時のURL:', url);
+                window.open(url, '_blank');
+                return false;
+            };
+
+            console.log('✅ ボタンの設定完了');
         }
+    } else {
+        console.error('❌ googleFormButton要素が見つかりません！');
     }
 
-    // ===================================================
-    // 3. モーダルの表示
-    // ===================================================
+    // モーダルの表示
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
@@ -321,46 +370,14 @@ function initializeEventListeners() {
     });
 }
 
-// ⚠️ Googleフォームで確認した「注文内容」の質問IDに置き換えてください ⚠️
-const GOOGLE_FORM_ENTRY_ID = '261192025'; // ここを置き換える！
-
-// 注文データをGoogleフォームに送信する準備
-function prepareOrderForGoogleForm() {
-    if (cart.length === 0) {
-        alert('商品を選択してください。');
-        return '#';
-    }
-
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shipping = subtotal >= 5000 ? 0 : 600;
-    const finalTotal = subtotal + shipping;
-
-    // 注文内容の文字列を整形
-    const orderSummary = cart.map(item =>
-        `${item.name} × ${item.quantity}個 = ¥${(item.price * item.quantity).toLocaleString()}`
-    ).join('\n');
-
-    // 送料と合計を追加
-    const fullOrderSummary =
-        `${orderSummary}\n---\n` +
-        `小計：¥${subtotal.toLocaleString()}\n` +
-        `送料：¥${shipping.toLocaleString()}\n` +
-        `合計：¥${finalTotal.toLocaleString()}`;
-
-    // GoogleフォームのベースURL（/viewform を /formResponse に変更しない）
-    const formUrlBase = 'https://docs.google.com/forms/d/e/1FAIpQLSeeo3brfYPjNcLU3Sm7WdetZgbTxpT1X6CEXYjCbty5dJxdtw/viewform';
-
-    // プレフィルドURLの作成（usp=pp_urlは不要）
-    const prefilledUrl = `${formUrlBase}?entry.${GOOGLE_FORM_ENTRY_ID}=${encodeURIComponent(fullOrderSummary)}`;
-
-    console.log('生成されたURL:', prefilledUrl); // デバッグ用
-
-    return prefilledUrl;
-}
-
-// エラーハンドリング
+// エラーハンドリング（拡張機能のエラーを無視）
 window.addEventListener('error', function (e) {
-    console.error('エラーが発生しました:', e.error);
+    // 拡張機能のエラーを無視
+    if (e.message && (e.message.includes('message channel closed') || e.filename && e.filename.includes('content.js'))) {
+        console.log('拡張機能のエラーを無視:', e.message);
+        e.preventDefault();
+        return;
+    }
 });
 
 // パフォーマンス最適化：画像の遅延読み込み
@@ -394,12 +411,3 @@ function trackEvent(action, category, label) {
         });
     }
 }
-
-window.addEventListener('error', function (e) {
-    // 拡張機能のエラーを無視
-    if (e.filename && e.filename.includes('content.js')) {
-        console.log('拡張機能のエラーを無視:', e.message);
-        e.preventDefault();
-        return;
-    }
-});
