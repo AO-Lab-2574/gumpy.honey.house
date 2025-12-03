@@ -20,7 +20,7 @@ function initSlideshow() {
         images[currentIndex].classList.remove('active');
         currentIndex = (currentIndex + 1) % images.length;
         images[currentIndex].classList.add('active');
-    }, 3000); // 3秒ごとに切り替え
+    }, 5000); // 3秒ごとに切り替え
 
     if (images2.length === 0) return; // 画像がない場合は実行しない
 
@@ -30,7 +30,7 @@ function initSlideshow() {
         images2[currentIndex2].classList.remove('active');
         currentIndex2 = (currentIndex2 + 1) % images2.length;
         images2[currentIndex2].classList.add('active');
-    }, 3000); // 3秒ごとに切り替え
+    }, 5000); // 3秒ごとに切り替え
 }
 
 // Googleスプレッドシートから在庫情報を取得する関数
