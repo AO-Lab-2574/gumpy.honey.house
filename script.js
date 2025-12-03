@@ -80,6 +80,8 @@ function updateStockDisplay() {
         const button = document.getElementById(product.btnId);
         const stock = inventory[product.name] || 0;
 
+        console.log(`表示更新: ${product.name} = ${stock}個`);
+
         if (stockElement && button) {
             if (stock > 0) {
                 stockElement.textContent = `在庫あり（${stock}個）`;
@@ -101,7 +103,11 @@ function addToCart(name, price) {
     // 在庫チェック
     const availableStock = inventory[name] || 0;
 
-    console.log(`商品: ${name}, 在庫: ${availableStock}`);
+    console.log(`=== カート追加試行 ===`);
+    console.log(`商品: ${name}`);
+    console.log(`価格: ${price}`);
+    console.log(`在庫: ${availableStock}`);
+    console.log(`現在の在庫データ:`, inventory);
 
     if (availableStock <= 0) {
         alert('申し訳ございません。この商品は在庫切れです。');
@@ -112,6 +118,8 @@ function addToCart(name, price) {
     const existingItem = cart.find(item => item.name === name);
     const currentQuantity = existingItem ? existingItem.quantity : 0;
 
+    console.log(`カート内の現在数: ${currentQuantity}`);
+
     // 在庫数を超えていないかチェック
     if (currentQuantity >= availableStock) {
         alert(`申し訳ございません。この商品の在庫は${availableStock}個までです。`);
@@ -120,9 +128,13 @@ function addToCart(name, price) {
 
     if (existingItem) {
         existingItem.quantity += 1;
+        console.log(`数量を増加: ${existingItem.quantity}`);
     } else {
         cart.push({ name, price, quantity: 1 });
+        console.log(`新規追加: ${name}`);
     }
+
+    console.log(`現在のカート:`, cart);
 
     updateCartDisplay();
     showAddToCartAnimation(event.target);
@@ -234,6 +246,7 @@ function closeOrderForm() {
 
 // ページ読み込み時に実行
 document.addEventListener('DOMContentLoaded', function () {
+    console.log('ページ読み込み完了');
     initSlideshow();
     fetchInventoryFromGoogleSheets();
     updateStockDisplay();
@@ -260,11 +273,14 @@ function initializeEventListeners() {
     });
 
     // モーダルの外側クリックで閉じる
-    document.getElementById('order-modal').addEventListener('click', function (e) {
-        if (e.target === this) {
-            closeOrderForm();
-        }
-    });
+    const modal = document.getElementById('order-modal');
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeOrderForm();
+            }
+        });
+    }
 
     // セクションにホバーエフェクトを追加
     const sections = document.querySelectorAll('.product-card, .contact-card');
