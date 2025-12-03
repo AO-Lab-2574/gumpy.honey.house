@@ -656,6 +656,15 @@ body {
     line-height: 1.6;
 }
 
+.disabled-button {
+    pointer-events: none;
+    /* クリックを無効化 */
+    opacity: 0.6;
+    /* 薄くして無効に見せる */
+    cursor: not-allowed !important;
+    /* カーソルを禁止マークにする */
+}
+
 /* お問い合わせセクション */
 .contact-section {
     padding: 60px 20px;

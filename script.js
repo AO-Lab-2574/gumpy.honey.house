@@ -202,11 +202,17 @@ function openOrderForm() {
     const modal = document.getElementById('order-modal');
     const orderItems = document.getElementById('order-items');
     const orderTotal = document.getElementById('order-total');
+    const googleFormButton = document.querySelector('.google-form-container .form-button');
 
+    // ===================================================
+    // 1. 注文内容の表示と合計金額の計算
+    // ===================================================
     if (cart.length === 0) {
+        // カートが空の場合の表示
         orderItems.innerHTML = '<p class="empty-cart">商品が選択されていません</p>';
         orderTotal.textContent = '合計：¥0';
     } else {
+        // カートがある場合の表示
         orderItems.innerHTML = cart.map(item => `
             <div class="order-item">
                 <div class="item-info">
@@ -234,6 +240,26 @@ function openOrderForm() {
         `;
     }
 
+    // ===================================================
+    // 2. Googleフォームボタンの制御 (追加されたロジック)
+    // ===================================================
+    if (googleFormButton) {
+        if (cart.length === 0) {
+            // カートが空の場合はリンクを無効化
+            googleFormButton.href = '#';
+            googleFormButton.textContent = '📝 商品を選んでください';
+            googleFormButton.classList.add('disabled-button'); // CSSで見た目を制御するためにクラスを追加
+        } else {
+            // カートがある場合はプレフィルドURLを生成・設定
+            googleFormButton.href = prepareOrderForGoogleForm();
+            googleFormButton.textContent = '📝 Googleフォームで注文する';
+            googleFormButton.classList.remove('disabled-button');
+        }
+    }
+
+    // ===================================================
+    // 3. モーダルの表示
+    // ===================================================
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
@@ -295,6 +321,9 @@ function initializeEventListeners() {
     });
 }
 
+// ⚠️ Googleフォームで確認した「注文内容」の質問IDに置き換えてください ⚠️
+const GOOGLE_FORM_ENTRY_ID = '261192025'; // ここを置き換える！
+
 // 注文データをGoogleフォームに送信する準備
 function prepareOrderForGoogleForm() {
     if (cart.length === 0) {
@@ -302,20 +331,27 @@ function prepareOrderForGoogleForm() {
         return;
     }
 
-    const orderData = {
-        items: cart,
-        total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        timestamp: new Date().toISOString()
-    };
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shipping = subtotal >= 5000 ? 0 : 600;
+    const finalTotal = subtotal + shipping;
 
-    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-
-    const formUrl = 'https://forms.google.com/[あなたのフォームID]';
+    // 注文内容の文字列を整形
     const orderSummary = cart.map(item =>
-        `${item.name} × ${item.quantity} = ¥${(item.price * item.quantity).toLocaleString()}`
+        `${item.name} × ${item.quantity}個 = ¥${(item.price * item.quantity).toLocaleString()}`
     ).join('\n');
 
-    const prefilledUrl = `${formUrl}?usp=pp_url&entry.123456=${encodeURIComponent(orderSummary)}`;
+    // 送料と合計を追加
+    const fullOrderSummary =
+        `${orderSummary}\n---\n` +
+        `小計：¥${subtotal.toLocaleString()}\n` +
+        `送料：¥${shipping.toLocaleString()}\n` +
+        `合計：¥${finalTotal.toLocaleString()}`;
+
+    // GoogleフォームのベースURL（「[あなたのフォームID]」は実際のIDに置き換える）
+    const formUrlBase = 'https://docs.google.com/forms/d/e/1FAIpQLSeeo3brfYPjNcLU3Sm7WdetZgbTxpT1X6CEXYjCbty5dJxdtw/viewform?usp=header';
+
+    // プレフィルドURLの作成
+    const prefilledUrl = `${formUrlBase}?usp=pp_url&entry.${GOOGLE_FORM_ENTRY_ID}=${encodeURIComponent(fullOrderSummary)}`;
 
     return prefilledUrl;
 }
