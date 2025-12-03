@@ -394,3 +394,12 @@ function trackEvent(action, category, label) {
         });
     }
 }
+
+window.addEventListener('error', function (e) {
+    // 拡張機能のエラーを無視
+    if (e.filename && e.filename.includes('content.js')) {
+        console.log('拡張機能のエラーを無視:', e.message);
+        e.preventDefault();
+        return;
+    }
+});
