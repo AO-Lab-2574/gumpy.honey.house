@@ -7,12 +7,6 @@ let inventory = {
     '百花蜜(500g)': 0
 };
 
-// 在庫データのマッピング（スプレッドシートの商品名とサイトの商品名の対応）
-const productMapping = {
-    '百花蜜（300g）': '百花蜜(300g)',
-    '百花蜜（500g）': '百花蜜(500g)'
-};
-
 // スライドショー機能
 function initSlideshow() {
     const images = document.querySelectorAll('.slideshow-image');
@@ -76,26 +70,25 @@ async function fetchInventoryFromGoogleSheets() {
 
 // 在庫表示を更新
 function updateStockDisplay() {
-    // 実際のDOM要素を探す
-    const stockElements = document.querySelectorAll('.stock-status');
-    const buttons = document.querySelectorAll('.add-to-cart');
+    const products = [
+        { name: '百花蜜(300g)', stockId: 'stock-300g', btnId: 'btn-300g' },
+        { name: '百花蜜(500g)', stockId: 'stock-500g', btnId: 'btn-500g' }
+    ];
 
-    stockElements.forEach((stockElement, index) => {
-        const productName = Object.keys(inventory)[index];
-        const stock = inventory[productName] || 0;
-        const button = buttons[index];
+    products.forEach(product => {
+        const stockElement = document.getElementById(product.stockId);
+        const button = document.getElementById(product.btnId);
+        const stock = inventory[product.name] || 0;
 
-        if (stock > 0) {
-            stockElement.textContent = `在庫あり（${stock}個）`;
-            stockElement.className = 'stock-status';
-            if (button) {
+        if (stockElement && button) {
+            if (stock > 0) {
+                stockElement.textContent = `在庫あり（${stock}個）`;
+                stockElement.className = 'stock-status';
                 button.disabled = false;
                 button.textContent = 'カートに追加';
-            }
-        } else {
-            stockElement.textContent = '在庫切れ';
-            stockElement.className = 'stock-status out-of-stock';
-            if (button) {
+            } else {
+                stockElement.textContent = '在庫切れ';
+                stockElement.className = 'stock-status out-of-stock';
                 button.disabled = true;
                 button.textContent = '在庫切れ';
             }
@@ -105,11 +98,10 @@ function updateStockDisplay() {
 
 // カートに商品を追加
 function addToCart(name, price) {
-    // 商品名のマッピング
-    const mappedName = productMapping[name] || name;
-
     // 在庫チェック
-    const availableStock = inventory[mappedName] || 0;
+    const availableStock = inventory[name] || 0;
+
+    console.log(`商品: ${name}, 在庫: ${availableStock}`);
 
     if (availableStock <= 0) {
         alert('申し訳ございません。この商品は在庫切れです。');
@@ -165,8 +157,7 @@ function showAddToCartAnimation(button) {
 
 // カート内の商品数量を変更
 function updateCartQuantity(name, change) {
-    const mappedName = productMapping[name] || name;
-    const availableStock = inventory[mappedName] || 0;
+    const availableStock = inventory[name] || 0;
     const item = cart.find(item => item.name === name);
 
     if (!item) return;
@@ -183,6 +174,13 @@ function updateCartQuantity(name, change) {
         return;
     }
 
+    updateCartDisplay();
+    openOrderForm(); // 表示を更新
+}
+
+// カートから商品を削除
+function removeFromCart(name) {
+    cart = cart.filter(item => item.name !== name);
     updateCartDisplay();
     openOrderForm(); // 表示を更新
 }
@@ -209,6 +207,7 @@ function openOrderForm() {
                     <button onclick="updateCartQuantity('${item.name}', 1)" class="qty-btn">+</button>
                 </div>
                 <div class="item-total">¥${(item.price * item.quantity).toLocaleString()}</div>
+                <button onclick="removeFromCart('${item.name}')" class="remove-btn" title="削除">🗑️</button>
             </div>
         `).join('');
 
