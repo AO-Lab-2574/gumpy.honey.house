@@ -328,7 +328,7 @@ const GOOGLE_FORM_ENTRY_ID = '261192025'; // ここを置き換える！
 function prepareOrderForGoogleForm() {
     if (cart.length === 0) {
         alert('商品を選択してください。');
-        return;
+        return '#';
     }
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -347,11 +347,13 @@ function prepareOrderForGoogleForm() {
         `送料：¥${shipping.toLocaleString()}\n` +
         `合計：¥${finalTotal.toLocaleString()}`;
 
-    // GoogleフォームのベースURL（「[あなたのフォームID]」は実際のIDに置き換える）
-    const formUrlBase = 'https://docs.google.com/forms/d/e/1FAIpQLSeeo3brfYPjNcLU3Sm7WdetZgbTxpT1X6CEXYjCbty5dJxdtw/viewform?usp=header';
+    // GoogleフォームのベースURL（/viewform を /formResponse に変更しない）
+    const formUrlBase = 'https://docs.google.com/forms/d/e/1FAIpQLSeeo3brfYPjNcLU3Sm7WdetZgbTxpT1X6CEXYjCbty5dJxdtw/viewform';
 
-    // プレフィルドURLの作成
-    const prefilledUrl = `${formUrlBase}?usp=pp_url&entry.${GOOGLE_FORM_ENTRY_ID}=${encodeURIComponent(fullOrderSummary)}`;
+    // プレフィルドURLの作成（usp=pp_urlは不要）
+    const prefilledUrl = `${formUrlBase}?entry.${GOOGLE_FORM_ENTRY_ID}=${encodeURIComponent(fullOrderSummary)}`;
+
+    console.log('生成されたURL:', prefilledUrl); // デバッグ用
 
     return prefilledUrl;
 }
