@@ -211,7 +211,8 @@ function prepareOrderForGoogleForm() {
     }
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shipping = subtotal >= 5000 ? 0 : 600;
+    // const shipping = subtotal >= 5000 ? 0 : 600;
+    const shipping = 800;
     const finalTotal = subtotal + shipping;
 
     // 注文内容の文字列を整形
@@ -269,7 +270,8 @@ function openOrderForm() {
         `).join('');
 
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const shipping = total >= 5000 ? 0 : 600;
+        // const shipping = total >= 5000 ? 0 : 600;
+        const shipping = 800;
         const finalTotal = total + shipping;
 
         orderTotal.innerHTML = `
