@@ -35,7 +35,7 @@ function initSlideshow() {
 async function fetchInventoryFromGoogleSheets() {
     try {
         // ⚠️ ここに自分のGoogle Apps ScriptのURLを入れる
-        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw6ixzojTSJECfoOEvbnewj0rnhLF5ZKtj_t_rlbQElBEmJgTlG6CnQQvOqMyknWYls8A/exec';
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwXMzyxJTXcoTWATLYTjOGiyAvRujAQ-6lep5IE8PLRxemc5-wisHWQ-v5RTlFpux8H/exec';
 
         console.log('在庫情報を取得中...');
         const response = await fetch(GOOGLE_SHEETS_URL);
