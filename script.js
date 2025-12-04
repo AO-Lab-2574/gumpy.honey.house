@@ -1,7 +1,7 @@
 // カート管理
 let cart = [];
 
-// 在庫管理（デフォルト値）
+// 在庫管理(デフォルト値)
 let inventory = {
     '百花蜜(300g)': 0,
     '百花蜜(500g)': 0
@@ -35,7 +35,7 @@ function initSlideshow() {
 async function fetchInventoryFromGoogleSheets() {
     try {
         // ⚠️ ここに自分のGoogle Apps ScriptのURLを入れる
-        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwXMzyxJTXcoTWATLYTjOGiyAvRujAQ-6lep5IE8PLRxemc5-wisHWQ-v5RTlFpux8H/exec';
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw6ixzojTSJECfoOEvbnewj0rnhLF5ZKtj_t_rlbQElBEmJgTlG6CnQQvOqMyknWYls8A/exec';
 
         console.log('在庫情報を取得中...');
         const response = await fetch(GOOGLE_SHEETS_URL);
@@ -85,7 +85,7 @@ function updateStockDisplay() {
 
         if (stockElement && button) {
             if (stock > 0) {
-                stockElement.textContent = `在庫あり（${stock}個）`;
+                stockElement.textContent = `在庫あり(${stock}個)`;
                 stockElement.className = 'stock-status';
                 button.disabled = false;
                 button.textContent = 'カートに追加';
@@ -163,7 +163,7 @@ function showAddToCartAnimation(button) {
     const originalBackground = button.style.background;
 
     button.style.background = '#4CAF50';
-    button.textContent = '追加しました！';
+    button.textContent = '追加しました!';
 
     setTimeout(() => {
         button.style.background = originalBackground;
@@ -201,7 +201,7 @@ function removeFromCart(name) {
     openOrderForm(); // 表示を更新
 }
 
-// Entry ID（正しいIDです）
+// Entry ID(正しいIDです)
 const GOOGLE_FORM_ENTRY_ID = '261192025';
 
 // 注文データをGoogleフォーム用に準備
@@ -211,7 +211,6 @@ function prepareOrderForGoogleForm() {
     }
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    // const shipping = subtotal >= 5000 ? 0 : 600;
     const shipping = 800;
     const finalTotal = subtotal + shipping;
 
@@ -222,14 +221,14 @@ function prepareOrderForGoogleForm() {
 
     const fullOrderSummary =
         `${orderSummary}\n---\n` +
-        `小計：¥${subtotal.toLocaleString()}\n` +
-        `送料：¥${shipping.toLocaleString()}\n` +
-        `合計：¥${finalTotal.toLocaleString()}`;
+        `小計:¥${subtotal.toLocaleString()}\n` +
+        `送料:¥${shipping.toLocaleString()}\n` +
+        `合計:¥${finalTotal.toLocaleString()}`;
 
     // GoogleフォームのベースURL
     const formUrlBase = 'https://docs.google.com/forms/d/e/1FAIpQLSeeo3brfYPjNcLU3Sm7WdetZgbTxpT1X6CEXYjCbty5dJxdtw/viewform';
 
-    // プレフィルドURLの作成
+    // プリフィルドURLの作成
     const prefilledUrl = `${formUrlBase}?entry.${GOOGLE_FORM_ENTRY_ID}=${encodeURIComponent(fullOrderSummary)}`;
 
     console.log('🔗 生成されたURL:', prefilledUrl);
@@ -237,21 +236,21 @@ function prepareOrderForGoogleForm() {
     return prefilledUrl;
 }
 
-// 注文フォームを開く（最終版）
+// 注文フォームを開く(最終版)
 function openOrderForm() {
     const modal = document.getElementById('order-modal');
     const orderItems = document.getElementById('order-items');
     const orderTotal = document.getElementById('order-total');
     const googleFormButton = document.querySelector('.google-form-container .form-button');
 
-    console.log('📝 openOrderForm が呼ばれました');
+    console.log('📋 openOrderForm が呼ばれました');
     console.log('🛒 現在のカート:', cart);
     console.log('🔘 ボタン要素:', googleFormButton);
 
     // 注文内容の表示と合計金額の計算
     if (cart.length === 0) {
         orderItems.innerHTML = '<p class="empty-cart">商品が選択されていません</p>';
-        orderTotal.textContent = '合計：¥0';
+        orderTotal.textContent = '合計:¥0';
     } else {
         orderItems.innerHTML = cart.map(item => `
             <div class="order-item">
@@ -270,18 +269,17 @@ function openOrderForm() {
         `).join('');
 
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        // const shipping = total >= 5000 ? 0 : 600;
         const shipping = 800;
         const finalTotal = total + shipping;
 
         orderTotal.innerHTML = `
-            小計：¥${total.toLocaleString()}<br>
-            送料：¥${shipping.toLocaleString()}<br>
-            <strong>合計：¥${finalTotal.toLocaleString()}</strong>
+            小計:¥${total.toLocaleString()}<br>
+            送料:¥${shipping.toLocaleString()}<br>
+            <strong>合計:¥${finalTotal.toLocaleString()}</strong>
         `;
     }
 
-    // Googleフォームボタンの制御（最終版）
+    // Googleフォームボタンの制御(購入完了処理付き)
     if (googleFormButton) {
         if (cart.length === 0) {
             // カートが空の場合
@@ -308,14 +306,20 @@ function openOrderForm() {
                 trackEvent('click', 'order', 'google_form_button');
 
                 console.log('✅ ボタンクリック時のURL:', url);
+
+                // 新しいタブでフォームを開く
                 window.open(url, '_blank');
+
+                // 購入完了処理
+                showOrderCompleteMessage();
+
                 return false;
             };
 
             console.log('✅ ボタンの設定完了');
         }
     } else {
-        console.error('❌ googleFormButton要素が見つかりません！');
+        console.error('❌ googleFormButtonが見つかりません!');
     }
 
     // モーダルの表示
@@ -329,6 +333,64 @@ function closeOrderForm() {
     document.body.style.overflow = 'auto';
 }
 
+// ==========================================
+// 購入完了メッセージを表示してカートをクリア
+// ==========================================
+function showOrderCompleteMessage() {
+    // モーダルを閉じる
+    closeOrderForm();
+
+    // カートをクリア
+    cart = [];
+    updateCartDisplay();
+
+    // 完了メッセージを表示
+    const message = document.createElement('div');
+    message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        z-index: 10001;
+        text-align: center;
+        max-width: 400px;
+    `;
+
+    message.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 20px;">✅</div>
+        <h2 style="color: #2E7D32; margin-bottom: 15px;">注文フォームを開きました</h2>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+            Googleフォームに注文内容が入力されています。<br>
+            必要事項を入力して送信してください。
+        </p>
+        <button onclick="this.parentElement.remove()" style="
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        ">閉じる</button>
+    `;
+
+    document.body.appendChild(message);
+
+    // 5秒後に自動で閉じる
+    setTimeout(() => {
+        if (message.parentElement) {
+            message.remove();
+        }
+    }, 5000);
+
+    console.log('🎉 購入完了処理実行');
+}
+
 // ページ読み込み時に実行
 document.addEventListener('DOMContentLoaded', function () {
     console.log('ページ読み込み完了');
@@ -338,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeEventListeners();
 });
 
-// 定期的に在庫情報を更新（5分ごと）
+// 定期的に在庫情報を更新(5分ごと)
 setInterval(fetchInventoryFromGoogleSheets, 5 * 60 * 1000);
 
 // イベントリスナーを初期化
@@ -393,7 +455,7 @@ function trackEvent(action, category, label) {
     }
 }
 
-// エラーハンドリング（拡張機能のエラーを無視）
+// エラーハンドリング(拡張機能のエラーを無視)
 window.addEventListener('error', function (e) {
     // 拡張機能のエラーを無視
     if (e.message && (e.message.includes('message channel closed') || e.filename && e.filename.includes('content.js'))) {
@@ -403,7 +465,7 @@ window.addEventListener('error', function (e) {
     }
 });
 
-// パフォーマンス最適化：画像の遅延読み込み
+// パフォーマンス最適化:画像の遅延読み込み
 if ('IntersectionObserver' in window) {
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
